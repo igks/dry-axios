@@ -8,16 +8,18 @@ const axiosInstance = axios.create ({
   headers: {'Accept': 'application/json', 'Content-Type': 'application/json'}
 });
 
-if(true){
-  axiosInstance.defaults.headers.Authorization = 'token';
-}
+axiosInstance.interceptors.request.use(async (config) => {
+  const token = await Session.getValue("token");
+  config.headers.Authorization = token ? `Bearer ${token}` : "";
+  return config;
+});
 
 const getData = async (path) =>{
   try {
     const response = await axiosInstance.get(path);
     return response.data
   } catch (error) {
-    return error;
+    return errorHandler(error);
   }
   // return new Promise ((resolve, reject) => {
   //   try {
@@ -36,7 +38,7 @@ const postData = async (path, data) => {
     const response = await axiosInstance.post(path, data);
     return response.data
   } catch (error) {
-    return error;
+    return errorHandler(error);
   }
 };
 
@@ -45,7 +47,7 @@ const putData = async (path, data) => {
     const response = await axiosInstance.put(path, data);
     return response.data
   } catch (error) {
-    return error;
+    return errorHandler(error);
   }
 };
 
@@ -56,7 +58,7 @@ const deleteData = async (path) => {
       status: 200
     }
   } catch (error) {
-    return error;
+    return errorHandler(error);
   }
 };
 
